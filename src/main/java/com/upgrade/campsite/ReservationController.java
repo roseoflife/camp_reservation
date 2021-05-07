@@ -32,19 +32,11 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-    /*
-    Display all availabilities
-     */
-    @GetMapping("/availabilities")
-    List<AvailabilityEntity> availabilities() {
-        return availabilityRepository.findAll();
-    }
-
-
     /**
      * Display all availabilities for a range of dates
-     * format "2000-10-31" where the capacity is >0.
+     * format "2000-10-31" where the capacity is > 0.
      */
+    //todo: add the default for 1 month
     @GetMapping("/findAvailabilities")
     List<AvailabilityEntity> findAvailabilities(
             @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
@@ -52,11 +44,9 @@ public class ReservationController {
         return availabilityRepository.findAvailfromTo(fromDate, toDate);
     }
 
-    @GetMapping("/reservations")
-    List<ReservationEntity> all() {
-        return reservationRepository.findAll();
-    }
-
+    /**
+     * Reserve the campsite for a given date
+     */
     @PostMapping("/reserve")
     ResponseEntity<Object> reservation(@RequestBody ReservationDTO reservationDTO) {
         try {
@@ -68,35 +58,43 @@ public class ReservationController {
         }
     }
 
-    @GetMapping("/reservation/{id}")
-    ReservationEntity findOne(@PathVariable UUID id) {
-        return reservationRepository.findById(id).orElseThrow(() -> new ReservationNotFoundException(id));
-
-    }
-
-    /*
-    update a reservation
+    /**
+     * update a reservation
      */
     @PutMapping("/reservation/{id}")
-    ReservationEntity updateReservation(@RequestBody ReservationEntity newReservation, @PathVariable UUID id) {
-        return reservationRepository.findById(id)
-                .map(reservation -> {
-                    reservation.setEmail(newReservation.getEmail());
-                    reservation.setFromDate(newReservation.getFromDate());
-                    reservation.setToDate(newReservation.getToDate());
-                    reservation.setName(newReservation.getName());
-                    return reservationRepository.save(reservation);
-                })
-                .orElseGet(() -> {
-                    newReservation.setUid(id);
-                    return reservationRepository.save(newReservation);
-                });
+    ResponseEntity<Object> updateReservation(@PathVariable UUID id, @RequestBody ReservationDTO newReservation) {
+        try {
+            ReservationDTO updatedReservation = reservationService.updateReservation(id, newReservation);
+            //TODO: update the HttpStatus
+            return ResponseEntity.status(HttpStatus.FOUND).body(updatedReservation);
+
+        } catch (InvalidDatesException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (ReservationNotFoundException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
+    /**
+     * Cancel a reservation
+     */
     @DeleteMapping("/reservation/{id}")
-    void deleteReservation(@PathVariable UUID id) {
-        reservationRepository.deleteById(id);
+    ResponseEntity<Object> deleteReservation(@PathVariable UUID id) {
+        try {
+            reservationService.deleteReservation(id);
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
+
+        } catch (ReservationNotFoundException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
+    @GetMapping("/reservations")
+    List<ReservationEntity> all() {
+        return reservationRepository.findAll();
+    }
 
 }

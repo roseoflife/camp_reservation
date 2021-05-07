@@ -12,6 +12,9 @@ public class AvailabilityEntity {
     private LocalDate date;
     private int capacity;
 
+    public AvailabilityEntity() {
+
+    }
     public AvailabilityEntity(Long uid, LocalDate date, int capacity) {
         this.uid = uid;
         this.date = date;

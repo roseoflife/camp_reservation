@@ -13,8 +13,6 @@ public class ReservationDTO {
     UUID uid;
     private LocalDate fromDate;
     private LocalDate toDate;
-    private LocalDate checkIn;
-    private LocalDate Checkout;
     private String name;
     private String email;
 

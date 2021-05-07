@@ -15,13 +15,12 @@ public class ReservationEntity {
     UUID uid;
     private LocalDate fromDate;
     private LocalDate toDate;
+    private String name;
+    private String email;
     private LocalDate checkIn;
     private LocalDate Checkout;
     //private Timestamp initialBookingTime;
     //private Timestamp updateTime;
-    private String name;
-    private String email;
-
     public ReservationEntity() {
 
     }
