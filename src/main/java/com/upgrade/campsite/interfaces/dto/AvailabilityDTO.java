@@ -1,21 +1,16 @@
-package com.upgrade.campsite.model;
+package com.upgrade.campsite.interfaces.dto;
 
-import javax.persistence.*;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import java.time.LocalDate;
 
-@Entity
-public class AvailabilityEntity {
+public class AvailabilityDTO {
 
-    private @Id
-    @GeneratedValue
-    Long uid;
+    private Long uid;
     private LocalDate date;
     private int capacity;
 
-    public AvailabilityEntity() {
-
-    }
-    public AvailabilityEntity(Long uid, LocalDate date, int capacity) {
+    public AvailabilityDTO(Long uid, LocalDate date, int capacity) {
         this.uid = uid;
         this.date = date;
         this.capacity = capacity;

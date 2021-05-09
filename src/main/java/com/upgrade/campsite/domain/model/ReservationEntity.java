@@ -1,12 +1,14 @@
-package com.upgrade.campsite.dto;
+package com.upgrade.campsite.domain.model;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-public class ReservationDTO {
+@Entity
+public class ReservationEntity {
 
     private @Id
     @GeneratedValue
@@ -15,12 +17,11 @@ public class ReservationDTO {
     private LocalDate toDate;
     private String name;
     private String email;
-
-    public ReservationDTO() {
+    public ReservationEntity() {
 
     }
 
-    public ReservationDTO(UUID uid, String name, String email, LocalDate fromDate, LocalDate toDate) {
+    public ReservationEntity(UUID uid, String name, String email, LocalDate fromDate, LocalDate toDate) {
         this.uid = uid;
         this.fromDate = fromDate;
         this.toDate = toDate;
@@ -71,8 +72,8 @@ public class ReservationDTO {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ReservationDTO)) return false;
-        ReservationDTO that = (ReservationDTO) o;
+        if (!(o instanceof ReservationEntity)) return false;
+        ReservationEntity that = (ReservationEntity) o;
         return Objects.equals(getUid(), that.getUid());
     }
 

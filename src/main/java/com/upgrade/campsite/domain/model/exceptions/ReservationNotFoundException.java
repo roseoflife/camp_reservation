@@ -1,4 +1,4 @@
-package com.upgrade.campsite.Exceptions;
+package com.upgrade.campsite.domain.model.exceptions;
 
 import java.util.UUID;
 

@@ -1,11 +1,11 @@
-package com.upgrade.campsite;
+package com.upgrade.campsite.application;
 
 
-import com.upgrade.campsite.Exceptions.InvalidDatesException;
-import com.upgrade.campsite.Exceptions.ReservationNotFoundException;
-import com.upgrade.campsite.dto.ReservationDTO;
-import com.upgrade.campsite.model.AvailabilityEntity;
-import com.upgrade.campsite.model.ReservationEntity;
+import com.upgrade.campsite.domain.model.AvailabilityEntity;
+import com.upgrade.campsite.domain.model.ReservationEntity;
+import com.upgrade.campsite.domain.model.exceptions.InvalidDatesException;
+import com.upgrade.campsite.domain.model.exceptions.ReservationNotFoundException;
+import com.upgrade.campsite.interfaces.dto.ReservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -20,15 +20,10 @@ import java.util.UUID;
 @RestController
 public class ReservationController {
 
-    private final ReservationRepository reservationRepository;
-    private final AvailabilityRepository availabilityRepository;
     private final ReservationService reservationService;
     private final Logger log = LoggerFactory.getLogger(ReservationController.class);
 
-
-    public ReservationController(ReservationRepository reservationRepository, AvailabilityRepository availabilityRepository, ReservationService reservationService) {
-        this.reservationRepository = reservationRepository;
-        this.availabilityRepository = availabilityRepository;
+    public ReservationController(ReservationService reservationService) {
         this.reservationService = reservationService;
     }
 
@@ -37,20 +32,20 @@ public class ReservationController {
      * format "2000-10-31" where the capacity is > 0.
      */
     //todo: add the default for 1 month
-    @GetMapping("/findAvailabilities")
-    List<AvailabilityEntity> findAvailabilities(
+    @GetMapping(path = "/availabilities", produces = "application/json")
+    List<AvailabilityEntity> availabilities(
             @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return availabilityRepository.findAvailfromTo(fromDate, toDate);
+        return reservationService.availabilities(fromDate, toDate);
     }
 
     /**
      * Reserve the campsite for a given date
      */
-    @PostMapping("/reserve")
+    @PostMapping("/reservation")
     ResponseEntity<Object> reservation(@RequestBody ReservationDTO reservationDTO) {
         try {
-            ReservationDTO reservation = reservationService.ReserveCampfromTo(reservationDTO);
+            ReservationDTO reservation = reservationService.reserveCampfromTo(reservationDTO);
             return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
         } catch (InvalidDatesException e) {
             log.error(e.getMessage());
@@ -62,7 +57,7 @@ public class ReservationController {
      * update a reservation
      */
     @PutMapping("/reservation/{id}")
-    ResponseEntity<Object> updateReservation(@PathVariable UUID id, @RequestBody ReservationDTO newReservation) {
+    ResponseEntity<Object> reservation(@PathVariable UUID id, @RequestBody ReservationDTO newReservation) {
         try {
             ReservationDTO updatedReservation = reservationService.updateReservation(id, newReservation);
             //TODO: update the HttpStatus
@@ -80,21 +75,26 @@ public class ReservationController {
     /**
      * Cancel a reservation
      */
-    @DeleteMapping("/reservation/{id}")
-    ResponseEntity<Object> deleteReservation(@PathVariable UUID id) {
+    @DeleteMapping(path = "/cancel", produces = "application/json")
+    ResponseEntity<Object> cancel(@RequestParam UUID id) {
         try {
             reservationService.deleteReservation(id);
             return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
 
         } catch (ReservationNotFoundException e) {
-            log.error(e.getMessage());
+            log.debug(e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @GetMapping("/reservations")
     List<ReservationEntity> all() {
-        return reservationRepository.findAll();
+        return reservationService.all();
+    }
+
+    @GetMapping("/avas")
+    List<AvailabilityEntity> avas() {
+        return reservationService.allAvailabilities();
     }
 
 }

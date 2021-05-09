@@ -1,31 +1,22 @@
-package com.upgrade.campsite.model;
+package com.upgrade.campsite.interfaces.dto;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
 
-@Entity
-public class ReservationEntity {
+public class ReservationDTO {
 
-    private @Id
-    @GeneratedValue
-    UUID uid;
+    private UUID uid;
     private LocalDate fromDate;
     private LocalDate toDate;
     private String name;
     private String email;
-    private LocalDate checkIn;
-    private LocalDate Checkout;
-    //private Timestamp initialBookingTime;
-    //private Timestamp updateTime;
-    public ReservationEntity() {
+
+    public ReservationDTO() {
 
     }
 
-    public ReservationEntity(UUID uid, String name, String email, LocalDate fromDate, LocalDate toDate) {
+    public ReservationDTO(UUID uid, String name, String email, LocalDate fromDate, LocalDate toDate) {
         this.uid = uid;
         this.fromDate = fromDate;
         this.toDate = toDate;
@@ -76,8 +67,8 @@ public class ReservationEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ReservationEntity)) return false;
-        ReservationEntity that = (ReservationEntity) o;
+        if (!(o instanceof ReservationDTO)) return false;
+        ReservationDTO that = (ReservationDTO) o;
         return Objects.equals(getUid(), that.getUid());
     }
 

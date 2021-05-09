@@ -1,30 +1,21 @@
-package com.upgrade.campsite;
+package com.upgrade.campsite.dao.repositories;
 
-import com.upgrade.campsite.model.AvailabilityEntity;
+import com.upgrade.campsite.domain.model.AvailabilityEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface AvailabilityRepository extends JpaRepository<AvailabilityEntity, Long> {
 
-    @Lock(value = LockModeType.OPTIMISTIC)
-    Optional<AvailabilityEntity> findByDate(LocalDate date);
-
-    List<AvailabilityEntity> findByDateBetween(
-            LocalDate from, LocalDate until);
-
     /**
      * To get a list of Availability for given dates where capacity for given day is > 0
      *
-     * @param from
-     * @param todate
+     * @param from : startBookingDate
+     * @param todate endBookingDate
      * @return List<Availability>
      */
 

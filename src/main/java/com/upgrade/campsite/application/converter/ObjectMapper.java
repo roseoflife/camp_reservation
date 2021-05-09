@@ -1,14 +1,14 @@
-package com.upgrade.campsite.converter;
+package com.upgrade.campsite.application.converter;
 
 
-import com.upgrade.campsite.dto.AvailabilityDTO;
-import com.upgrade.campsite.dto.ReservationDTO;
-import com.upgrade.campsite.model.AvailabilityEntity;
-import com.upgrade.campsite.model.ReservationEntity;
+import com.upgrade.campsite.domain.model.AvailabilityEntity;
+import com.upgrade.campsite.domain.model.ReservationEntity;
+import com.upgrade.campsite.interfaces.dto.AvailabilityDTO;
+import com.upgrade.campsite.interfaces.dto.ReservationDTO;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class Mapper {
+public class ObjectMapper {
 
     @Autowired
     public ModelMapper modelMapper;

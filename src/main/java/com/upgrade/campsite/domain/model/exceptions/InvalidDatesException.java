@@ -1,7 +1,6 @@
-package com.upgrade.campsite.Exceptions;
+package com.upgrade.campsite.domain.model.exceptions;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
 public class InvalidDatesException extends RuntimeException {
 

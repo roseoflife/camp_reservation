@@ -1,6 +1,7 @@
 package com.upgrade.campsite;
 
-import com.upgrade.campsite.Exceptions.InvalidDatesException;
+import com.upgrade.campsite.application.ReservationService;
+import com.upgrade.campsite.domain.model.exceptions.InvalidDatesException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
