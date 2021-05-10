@@ -22,20 +22,20 @@ public interface AvailabilityRepository extends JpaRepository<AvailabilityEntity
 
     default List<AvailabilityEntity> findAvailfromTo(LocalDate fromDate, LocalDate toDate) {
         List<AvailabilityEntity> availabilityList = new ArrayList<AvailabilityEntity>();
-        if (toDate == null)
+        if (toDate == null || fromDate == toDate)
             toDate = LocalDate.now().plusDays(30);
         if (fromDate == null)
             fromDate = LocalDate.now();
-        LocalDate finalFromDate = fromDate;
-        LocalDate finalToDate = toDate;
-        findAll().forEach(
-                a -> {
-                    if (a.getDate().isAfter(finalFromDate) || a.getDate().isEqual(finalFromDate) && a.getDate().isBefore(finalToDate) || a.getDate().isEqual(finalToDate))
-                        if (a.getCapacity() > 0)
+        else {
+            LocalDate finalFromDate = fromDate;
+            LocalDate finalToDate = toDate;
+            findAll().forEach(
+                    a -> {
+                        if ((a.getDate().isAfter(finalFromDate) || a.getDate().isEqual(finalFromDate)) && (a.getDate().isBefore(finalToDate) || a.getDate().isEqual(finalToDate)) && a.getCapacity() > 0)
                             availabilityList.add(a);
-
-                }
-        );
+                    }
+            );
+        }
         return availabilityList;
     }
 }

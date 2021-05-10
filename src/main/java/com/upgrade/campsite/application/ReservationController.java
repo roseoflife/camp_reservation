@@ -15,7 +15,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -32,7 +34,7 @@ public class ReservationController {
      * Display all availabilities for a range of dates
      * format "2000-10-31" where the capacity is > 0.
      */
-    @GetMapping(path = "/availabilities", produces = "application/json")
+    @GetMapping(path = "/availabilities")
     ResponseEntity<Object> availabilities(
             @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
@@ -69,9 +71,9 @@ public class ReservationController {
      */
     @PutMapping("/reservation")
     ResponseEntity<Object> reservation(@PathVariable UUID id, @RequestBody ReservationDTO newReservation) {
+        Map<String, String> response = new HashMap<String, String>();
         try {
             ReservationDTO updatedReservation = reservationService.updateReservation(id, newReservation);
-            //TODO: update the HttpStatus
             return ResponseEntity.status(HttpStatus.FOUND).body(updatedReservation);
 
         } catch (InvalidDatesException e) {
@@ -87,14 +89,17 @@ public class ReservationController {
      * Cancel a reservation
      */
     @DeleteMapping(path = "/cancel", produces = "application/json")
-    ResponseEntity<Object> cancel(@RequestParam UUID id) {
+    ResponseEntity<Map<String, String>> cancel(@RequestParam UUID id) {
+        Map<String, String> response = new HashMap<String, String>();
         try {
             reservationService.deleteReservation(id);
-            return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);
+            response.put("ok", "success cancelling reservation");
+            return ResponseEntity.accepted().body(response);
 
         } catch (ReservationNotFoundException e) {
             log.debug(e.getMessage());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            response.put("error", "Reservation Not Found for id:" + id);
+            return ResponseEntity.badRequest().body(response);
         }
     }
 
