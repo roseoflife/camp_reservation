@@ -7,6 +7,7 @@ import com.upgrade.campsite.dao.repositories.ReservationRepository;
 import com.upgrade.campsite.domain.model.AvailabilityEntity;
 import com.upgrade.campsite.domain.model.ReservationEntity;
 import com.upgrade.campsite.domain.model.exceptions.InvalidDatesException;
+import com.upgrade.campsite.domain.model.exceptions.ReservationFailedException;
 import com.upgrade.campsite.domain.model.exceptions.ReservationNotFoundException;
 import com.upgrade.campsite.interfaces.dto.ReservationDTO;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ public class ReservationService {
     ObjectMapper mapper = new ObjectMapper();
     AvailabilityRepository availabilityRepository;
     ReservationRepository reservationRepository;
+    DataValidator dataValidator = new DataValidator();
 
     ReservationService(AvailabilityRepository availabilityRepository, ReservationRepository reservationRepository) {
         this.reservationRepository = reservationRepository;
@@ -42,50 +44,39 @@ public class ReservationService {
      * 2- We use 2 databases one for read one for write (CQRS). DBs needs to be synced
      */
 
-    public ReservationDTO reserveCampfromTo(final ReservationDTO r) throws InvalidDatesException {
-        updateAvailability(r);
-        //todo: Use an EntityMapper Here
-        ReservationEntity reservation = new ReservationEntity(r.getUid(), r.getName(), r.getEmail(), r.getFromDate(), r.getToDate());
-        reservationRepository.save(reservation);
-        reservationRepository.flush();
-        return r;
+    public ReservationDTO reserveCampfromTo(final ReservationDTO r) throws InvalidDatesException, ReservationFailedException {
+        if (updateAvailability(r)) {
+            //todo: Use an EntityMapper Here
+            ReservationEntity reservation = new ReservationEntity(r.getUid(), r.getName(), r.getEmail(), r.getFromDate(), r.getToDate());
+            reservationRepository.save(reservation);
+            reservationRepository.flush();
+            return r;
+        } else
+            throw new ReservationFailedException();
     }
 
     /**
      * Batch update / so if one fails, it rolls back
-     * Lock Availability table to write not to read
+     * Lock Availability table to avoid deadlock
+     * PESSIMISTIC_WRITE lock guarantees that besides dirty and non-repeatable reads are impossible you can update data without obtaining additional locks(and possible deadlocks while waiting for exclusive lock).
      */
-    @Lock(value = LockModeType.OPTIMISTIC)
-    public void updateAvailability(final ReservationDTO r) throws InvalidDatesException {
+    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
+    public boolean updateAvailability(final ReservationDTO r) throws InvalidDatesException, ReservationFailedException {
         List<AvailabilityEntity> availabilities;
-        if (validateDates(r.getFromDate(), r.getToDate())) {
+        if (dataValidator.validateDates(r.getFromDate(), r.getToDate())) {
             availabilities = availabilityRepository.findAvailfromTo(
                     r.getFromDate(), r.getToDate());
-
-            for (AvailabilityEntity availability : availabilities) {
-                availability.setCapacity(availability.getCapacity() - 1);
-            }
+            if (availabilities.isEmpty())
+                return false;
+            else
+                for (AvailabilityEntity availability : availabilities) {
+                    availability.setCapacity(availability.getCapacity() - 1);
+                }
             availabilityRepository.saveAll(availabilities);
             availabilityRepository.flush();
-        } else
-            throw new InvalidDatesException(r.getFromDate(), r.getToDate(), "Invalid Dates");
-
-    }
-
-
-    //toDo: Add validation if fromDate and ToDate are null
-    public Boolean validateDates(LocalDate fromDate, LocalDate toDate) throws IllegalArgumentException {
-        if (fromDate.isEqual(toDate)) {
-            log.error("Reservation should be at least for one day");
-            throw new InvalidDatesException(fromDate, toDate, "Reservation should be at least for one day");
-        } else if (fromDate.isAfter(toDate)) {
-            log.error("Departure date should be after arrival Date");
-            throw new InvalidDatesException(fromDate, toDate, "Departure date should be after arrival Date");
-        } else if (toDate.isAfter(fromDate.plusDays(3))) {
-            log.error("Reservation is for maximum 3 days");
-            throw new InvalidDatesException(fromDate, toDate, "Reservation is for maximum 3 days");
-        } else
             return true;
+        } else
+            throw new ReservationFailedException();
     }
 
     /**
@@ -104,7 +95,7 @@ public class ReservationService {
         else {
             //first validate the new reservationDates
             List<AvailabilityEntity> availabilities;
-            if (validateDates(newReservation.getFromDate(), newReservation.getToDate())) {
+            if (dataValidator.validateDates(newReservation.getFromDate(), newReservation.getToDate())) {
                 availabilities = availabilityRepository.findAvailfromTo(
                         newReservation.getFromDate(), newReservation.getToDate());
                 // update the availability

@@ -4,6 +4,7 @@ package com.upgrade.campsite.application;
 import com.upgrade.campsite.domain.model.AvailabilityEntity;
 import com.upgrade.campsite.domain.model.ReservationEntity;
 import com.upgrade.campsite.domain.model.exceptions.InvalidDatesException;
+import com.upgrade.campsite.domain.model.exceptions.ReservationFailedException;
 import com.upgrade.campsite.domain.model.exceptions.ReservationNotFoundException;
 import com.upgrade.campsite.interfaces.dto.ReservationDTO;
 import org.slf4j.Logger;
@@ -31,14 +32,21 @@ public class ReservationController {
      * Display all availabilities for a range of dates
      * format "2000-10-31" where the capacity is > 0.
      */
-    //todo: add the default for 1 month
     @GetMapping(path = "/availabilities", produces = "application/json")
-    List<AvailabilityEntity> availabilities(
+    ResponseEntity<Object> availabilities(
             @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
             @RequestParam(required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate) {
-        return reservationService.availabilities(fromDate, toDate);
-    }
+        try {
+            if (!reservationService.availabilities(fromDate, toDate).isEmpty())
+                return ResponseEntity.status(HttpStatus.FOUND).body(reservationService.availabilities(fromDate, toDate));
+            else
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(reservationService.availabilities(fromDate, toDate));
 
+        } catch (InvalidDatesException e) {
+            log.debug(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
     /**
      * Reserve the campsite for a given date
      */
@@ -50,13 +58,16 @@ public class ReservationController {
         } catch (InvalidDatesException e) {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (ReservationFailedException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
     }
 
     /**
      * update a reservation
      */
-    @PutMapping("/reservation/{id}")
+    @PutMapping("/reservation")
     ResponseEntity<Object> reservation(@PathVariable UUID id, @RequestBody ReservationDTO newReservation) {
         try {
             ReservationDTO updatedReservation = reservationService.updateReservation(id, newReservation);

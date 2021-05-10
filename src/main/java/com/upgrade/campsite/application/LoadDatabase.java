@@ -31,11 +31,11 @@ public class LoadDatabase implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         log.info(
-                "Loading" + availabilityRepo.save(new AvailabilityEntity(r.nextLong(), LocalDate.now(), 0)));
+                "Loading" + availabilityRepo.save(new AvailabilityEntity(r.nextLong(), LocalDate.now(), 2)));
         log.info(
-                "Loading" + availabilityRepo.save(new AvailabilityEntity(r.nextLong(), LocalDate.now().plusDays(1), 0)));
+                "Loading" + availabilityRepo.save(new AvailabilityEntity(r.nextLong(), LocalDate.now().plusDays(1), 2)));
         log.info(
-                "Loading" + availabilityRepo.save(new AvailabilityEntity(r.nextLong(), LocalDate.now().plusDays(2), 0)));
+                "Loading" + availabilityRepo.save(new AvailabilityEntity(r.nextLong(), LocalDate.now().plusDays(2), 2)));
         log.info(
                 "Loading" + reservationRepository.save(new ReservationEntity(uid1, "Jack", "jack@upgrade.com", LocalDate.now(), LocalDate.now().plusDays(1)))
         );
