@@ -1,8 +1,8 @@
 # camp_reservation
 
-Campsite Reservation
+Campsite Reservation Service to manage reservations for camping site.
 
-Project basic requirements
+#### Project basic requirements
 
 1-The users will need to find out when the campsite is available
 
@@ -14,23 +14,27 @@ Project basic requirements
 
 4- It can be reserved minimum 1 day(s) ahead of arrival and up to 1 month in advance.
 
-
-
-Non functional requirements
+####  Non functional requirements
 
 System should be able to handle large volume of requests for getting the campsite availability.
 
 Demonstrate with appropriate test cases that the system can gracefully handle concurrent requests to reserve the campsite.
 
 
-#Concurrency
+#### Concurrency
 LockModeType.PESSIMISTIC_WRITE Locking in JPA
 
-Database: H2
+#### Technology:
+Spring Boots
+Java
+H2 DB
+Gradle
+H2 DB
+JUnit
 
 
 
- Run CampReservationApplication:
+#### Run CampReservationApplication:
 
 LoadDatabase has some defaul values for availability.
 
@@ -38,6 +42,7 @@ You can update the capacity in that class if you want to test.
 
 availabilityRepo.save(new AvailabilityEntity(r.nextLong(), LocalDate.now().plusDays(1), 2)));
 
+####APIS
 API POST to do a reservation
 
 http://localhost:8080/reservation
