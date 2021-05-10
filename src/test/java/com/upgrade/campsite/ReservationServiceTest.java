@@ -1,5 +1,6 @@
 package com.upgrade.campsite;
 
+import com.upgrade.campsite.application.DataValidator;
 import com.upgrade.campsite.application.ReservationService;
 import com.upgrade.campsite.domain.model.exceptions.InvalidDatesException;
 import org.junit.Test;
@@ -19,11 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class ReservationServiceTest {
     @Autowired
     private ReservationService reservationService;
+    private DataValidator dataValidator = new DataValidator();
+
+
 
     @Test
     public void testInvalidateDates() {
         Exception exception = assertThrows(InvalidDatesException.class, () -> {
-            Boolean validationStatus = reservationService.validateDates(LocalDate.now(), LocalDate.now().minusDays(4));
+            Boolean validationStatus = dataValidator.validateDates(LocalDate.now(), LocalDate.now().minusDays(4));
         });
         String expectedMessage = "Departure date should be after arrival Date";
         String actualMessage = exception.getMessage();
@@ -33,7 +37,7 @@ public class ReservationServiceTest {
 
     @Test
     public void testvalidDates() {
-        Boolean validationStatus = reservationService.validateDates(LocalDate.now(), LocalDate.now().plusDays(3));
+        Boolean validationStatus = dataValidator.validateDates(LocalDate.now(), LocalDate.now().plusDays(3));
         assertThat(validationStatus).isEqualTo(true);
     }
 
