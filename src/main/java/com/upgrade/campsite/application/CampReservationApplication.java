@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @ComponentScan({"com.upgrade.campsite.application"})
 @EntityScan("com.upgrade.campsite.domain.model")
-@EnableJpaRepositories("com.upgrade.campsite.infrastructure.repositories")
+@EnableJpaRepositories("com.upgrade.campsite.dao.repositories")
 @SpringBootApplication
 public class CampReservationApplication {
 

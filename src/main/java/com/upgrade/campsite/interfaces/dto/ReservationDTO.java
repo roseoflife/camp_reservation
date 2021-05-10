@@ -16,6 +16,9 @@ public class ReservationDTO {
 
     }
 
+    /**
+     * //      this.uid = UUID.randomUUID(); could be generated here
+     */
     public ReservationDTO(UUID uid, String name, String email, LocalDate fromDate, LocalDate toDate) {
         this.uid = uid;
         this.fromDate = fromDate;
@@ -65,6 +68,7 @@ public class ReservationDTO {
     }
 
     @Override
+    //TODO USE UUID
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ReservationDTO)) return false;
