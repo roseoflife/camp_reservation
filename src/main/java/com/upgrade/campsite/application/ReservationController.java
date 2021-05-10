@@ -56,7 +56,7 @@ public class ReservationController {
     ResponseEntity<Object> reservation(@RequestBody ReservationDTO reservationDTO) {
         try {
             ReservationDTO reservation = reservationService.reserveCampfromTo(reservationDTO);
-            return ResponseEntity.status(HttpStatus.CREATED).body(reservation);
+            return ResponseEntity.ok(reservation);
         } catch (InvalidDatesException e) {
             log.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -74,7 +74,7 @@ public class ReservationController {
         Map<String, String> response = new HashMap<String, String>();
         try {
             ReservationDTO updatedReservation = reservationService.updateReservation(id, newReservation);
-            return ResponseEntity.status(HttpStatus.FOUND).body(updatedReservation);
+            return ResponseEntity.status(HttpStatus.OK).body(updatedReservation);
 
         } catch (InvalidDatesException e) {
             log.error(e.getMessage());

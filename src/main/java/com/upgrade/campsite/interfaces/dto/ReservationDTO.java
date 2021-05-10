@@ -16,6 +16,12 @@ public class ReservationDTO {
 
     }
 
+    public ReservationDTO(String name, String email, LocalDate fromDate, LocalDate toDate) {
+        this.fromDate = fromDate;
+        this.toDate = toDate;
+        this.name = name;
+        this.email = email;
+    }
     /**
      * //      this.uid = UUID.randomUUID(); could be generated here
      */
