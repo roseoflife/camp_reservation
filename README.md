@@ -21,9 +21,6 @@ System should be able to handle large volume of requests for getting the campsit
 Demonstrate with appropriate test cases that the system can gracefully handle concurrent requests to reserve the campsite.
 
 
-#### Concurrency
-LockModeType.PESSIMISTIC_WRITE Locking in JPA
-
 #### Technology:
 Spring Boots
 Java
@@ -31,7 +28,7 @@ H2 DB
 Gradle
 H2 DB
 JUnit
-
+@Lock(value = LockModeType.OPTIMISTIC)
 
 
 #### Run CampReservationApplication:

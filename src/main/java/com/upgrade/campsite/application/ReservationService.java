@@ -12,8 +12,10 @@ import com.upgrade.campsite.domain.model.exceptions.ReservationNotFoundException
 import com.upgrade.campsite.interfaces.dto.ReservationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.LockModeType;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
@@ -38,12 +40,13 @@ public class ReservationService {
     /**
      * We dont need to lock reservation Table since everyUser has a UUID and does not need to update the same Row.
      * we need to lock Availability to avoid a deadlock situation. two users updating the same row of database.
-     * we could also use @Transactional but it locks everything and affect the performance of the application
+     * 1- we could also use @Transactional but it locks everything and affect the performance of the application
      * 2- We use 2 databases one for read one for write (CQRS). DBs needs to be synced
+     * 3-Lock(value = LockModeType.OPTIMISTIC)
      */
-    //@Lock(value = LockModeType.PESSIMISTIC_WRITE)
-    @Transactional
-    synchronized public ReservationDTO reserveCampfromTo(final ReservationDTO r) throws InvalidDatesException, ReservationFailedException {
+//    @Lock(value = LockModeType.OPTIMISTIC)
+    //@Transactional
+    public ReservationDTO reserveCampfromTo(final ReservationDTO r) throws InvalidDatesException, ReservationFailedException {
         UUID uid = UUID.randomUUID();
         r.setUid(uid);
         if (updateAvailability(r) && !reservationRepository.existsById(uid)) {
@@ -61,9 +64,8 @@ public class ReservationService {
      * Lock Availability table to avoid deadlock
      * PESSIMISTIC_WRITE lock guarantees that besides dirty and non-repeatable reads are impossible you can update data without obtaining additional locks(and possible deadlocks while waiting for exclusive lock).
      */
-//    @Lock(value = LockModeType.PESSIMISTIC_WRITE)
-    @Transactional
-    synchronized public boolean updateAvailability(final ReservationDTO r) throws InvalidDatesException, ReservationFailedException {
+    @Lock(value = LockModeType.OPTIMISTIC)
+    public boolean updateAvailability(final ReservationDTO r) throws InvalidDatesException, ReservationFailedException {
         List<AvailabilityEntity> availabilities;
         if (dataValidator.validateDates(r.getFromDate(), r.getToDate())) {
             availabilities = availabilityRepository.findAvailfromTo(

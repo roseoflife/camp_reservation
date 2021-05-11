@@ -11,6 +11,8 @@ public class AvailabilityEntity {
     Long uid;
     private LocalDate date;
     private int capacity;
+    @Version
+    private long version;
     public AvailabilityEntity() {
 
     }
